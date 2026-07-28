@@ -104,6 +104,10 @@ architecture holds. Stages 5 (extracting fields from PDF source documents) and
 implemented. There is no user interface, no database and no deployment layer.
 No real data of any kind has ever passed through it.
 
+Stage 1 currently resolves provider columns through a static mapping table; the
+three-tier resolver described above is the next stage of work and is not yet
+implemented.
+
 ## Licence
 
 MIT. See [LICENSE](LICENSE).

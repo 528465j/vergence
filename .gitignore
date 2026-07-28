@@ -8,4 +8,5 @@ out/
 *.egg-info/
 .claude/settings.local.json
 .logs/
+log*.txt
 \[log-*
