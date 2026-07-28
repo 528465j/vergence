@@ -1,0 +1,22 @@
+Entity_ID,GL_Acct,GL_Acct_Desc,TransDate,FiscalPeriod,Batch_ID,LineNum,Description,Debit_Amt,Credit_Amt,Currency,SourceSystem
+BH01,11200,Accounts Receivable,11/08/2025,FY2026,BH-2001,1,Service fees invoiced - engagement 1,62000.00,0.00,AUD,FINLEDGER
+BH01,11200,Accounts Receivable,11/08/2025,FY2026,BH-2001,2,Service fees invoiced - engagement 2,18500.00,0.00,AUD,FINLEDGER
+BH01,40000,Service Revenue,11/08/2025,FY2026,BH-2001,3,Service revenue - August,0.00,80500.00,AUD,FINLEDGER
+BH01,51000,Direct Costs,26/09/2025,FY2026,BH-2002,1,Subcontractor costs - engagement 1,24000.00,0.00,AUD,FINLEDGER
+BH01,51000,Direct Costs,26/09/2025,FY2026,BH-2002,2,Subcontractor costs - engagement 2,6750.00,0.00,AUD,FINLEDGER
+BH01,60500,Administrative Expenses,26/09/2025,FY2026,BH-2002,3,Software subscriptions - September,1500.00,0.00,AUD,FINLEDGER
+BH01,20100,Accounts Payable,26/09/2025,FY2026,BH-2002,4,Supplier invoices payable - September,0.00,32250.00,AUD,FINLEDGER
+BH01,10100,Bank Current Account,14/11/2025,FY2026,BH-2003,1,Customer receipt - engagement 1,45000.00,0.00,AUD,FINLEDGER
+BH01,10100,Bank Current Account,14/11/2025,FY2026,BH-2003,2,Customer receipt - engagement 2,17000.00,0.00,AUD,FINLEDGER
+BH01,11200,Accounts Receivable,14/11/2025,FY2026,BH-2003,3,Receivables settled - November,0.00,62000.00,AUD,FINLEDGER
+BH01,60500,Administrative Expenses,09/01/2026,FY2026,BH-2004,1,Premises costs - January,9400.00,0.00,AUD,FINLEDGER
+BH01,60500,Administrative Expenses,09/01/2026,FY2026,BH-2004,2,Telecommunications - January,3150.00,0.00,AUD,FINLEDGER
+BH01,60500,Administrative Expenses,09/01/2026,FY2026,BH-2004,3,Bank charges - January,1275.00,0.00,AUD,FINLEDGER
+BH01,10100,Bank Current Account,09/01/2026,FY2026,BH-2004,4,Administrative expenses settled,0.00,13825.00,AUD,FINLEDGER
+BH01,20100,Accounts Payable,05/03/2026,FY2026,BH-2005,1,Supplier payment - run 1,15000.00,0.00,AUD,FINLEDGER
+BH01,20100,Accounts Payable,05/03/2026,FY2026,BH-2005,2,Supplier payment - run 2,7500.00,0.00,AUD,FINLEDGER
+BH01,10100,Bank Current Account,05/03/2026,FY2026,BH-2005,3,Bank payment to suppliers,0.00,22500.00,AUD,FINLEDGER
+BH01,10100,Bank Current Account,21/05/2026,FY2026,BH-2006,1,Share capital subscribed,50000.00,0.00,AUD,FINLEDGER
+BH01,11200,Accounts Receivable,21/05/2026,FY2026,BH-2006,2,Service fees invoiced - engagement 3,9800.00,0.00,AUD,FINLEDGER
+BH01,30500,Share Capital,21/05/2026,FY2026,BH-2006,3,Share capital issued,0.00,50000.00,AUD,FINLEDGER
+BH01,40000,Service Revenue,21/05/2026,FY2026,BH-2006,4,Service revenue - May,0.00,9800.00,AUD,FINLEDGER

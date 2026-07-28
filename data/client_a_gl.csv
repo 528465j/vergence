@@ -1,0 +1,52 @@
+Co Code,Nominal Code,Nominal Name,Posting Dt,Per,Jnl Ref,Ln,Narrative,Amount DR,Amount CR,Ccy,Src
+AU01,1100,Trade Receivables,2025-07-08,FY2026,J-1001,1,Sales invoiced on credit - batch 1,52000.00,0.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2025-07-08,FY2026,J-1001,2,Sales invoiced on credit - batch 2,36500.00,0.00,AUD,ERP-X
+AU01,4100,Sales Revenue,2025-07-08,FY2026,J-1001,3,Sales revenue - July,0.00,88500.00,AUD,ERP-X
+AU01,5000,Cost of Sales,2025-07-22,FY2026,J-1002,1,Goods received - supplier batch 1,28400.00,0.00,AUD,ERP-X
+AU01,5000,Cost of Sales,2025-07-22,FY2026,J-1002,2,Goods received - supplier batch 2,12600.00,0.00,AUD,ERP-X
+AU01,2000,Trade Payables,2025-07-22,FY2026,J-1002,3,Supplier invoices payable - July,0.00,41000.00,AUD,ERP-X
+AU01,1000,Cash at Bank,2025-06-28,FY2026,J-1003,1,Customer receipt - deposit 1,40000.00,0.00,AUD,ERP-X
+AU01,1000,Cash at Bank,2025-08-05,FY2026,J-1003,2,Customer receipt - deposit 2,25000.00,0.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2025-08-05,FY2026,J-1003,3,Receivables settled - August,0.00,65000.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2025-09-14,FY2026,J-1004,1,Sales invoiced on credit,44000.00,0.00,AUD,ERP-X
+AU01,4100,Sales Revenue,2025-09-14,FY2026,J-1004,2,Sales revenue - September,0.00,44000.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2025-09-30,FY2026,J-1005,1,Premises costs - quarter 1,12500.00,0.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2025-09-30,FY2026,J-1005,2,Utilities - quarter 1,3750.00,0.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2025-09-30,FY2026,J-1005,3,Insurance - quarter 1,1980.00,0.00,AUD,ERP-X
+AU01,1000,Cash at Bank,2025-09-30,FY2026,J-1005,4,Operating expenses settled,0.00,18230.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2025-10-16,FY2026,J-1006,1,Sales invoiced on credit - batch 1,48750.00,0.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2025-10-16,FY2026,J-1006,2,Sales invoiced on credit - batch 2,23750.00,0.00,AUD,ERP-X
+AU01,4100,Sales Revenue,2025-10-16,FY2026,J-1006,3,Sales revenue - October,0.00,72500.00,AUD,ERP-X
+AU01,2000,Trade Payables,2025-10-31,FY2026,J-1007,1,Supplier payment - run 1,22000.00,0.00,AUD,ERP-X
+AU01,2000,Trade Payables,2025-10-31,FY2026,J-1007,2,Supplier payment - run 2,16000.00,0.00,AUD,ERP-X
+AU01,1000,Cash at Bank,2025-10-31,FY2026,J-1007,3,Bank payment to suppliers,0.00,38000.00,AUD,ERP-X
+AU01,5000,Cost of Sales,2025-11-20,FY2026,J-1008,1,Goods received - supplier batch 1,27400.00,0.00,AUD,ERP-X
+AU01,5000,Cost of Sales,2025-11-20,FY2026,J-1008,2,Goods received - supplier batch 2,9600.00,0.00,AUD,ERP-X
+AU01,2000,Trade Payables,2025-11-20,FY2026,J-1008,3,Supplier invoices payable - November,0.00,37000.00,AUD,ERP-X
+AU01,1000,Cash at Bank,2025-12-12,FY2026,J-1009,1,Customer receipt - deposit 1,55000.00,0.00,AUD,ERP-X
+AU01,1000,Cash at Bank,2025-12-12,FY2026,J-1009,2,Customer receipt - deposit 2,36000.00,0.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2025-12-12,FY2026,J-1009,3,Receivables settled - December,0.00,91000.00,AUD,ERP-X
+AU01,3000,Retained Earnings,2025-12-31,FY2026,J-1010,1,Dividend declared and paid,30000.00,0.00,AUD,ERP-X
+AU01,1000,Cash at Bank,2025-12-31,FY2026,J-1010,2,Dividend payment from bank,0.00,30000.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2026-01-23,FY2026,J-1011,1,Sales invoiced on credit - batch 1,41250.00,0.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2026-01-23,FY2026,J-1011,2,Sales invoiced on credit - batch 2,24750.00,0.00,AUD,ERP-X
+AU01,4100,Sales Revenue,2026-01-23,FY2026,J-1011,3,Sales revenue - January,0.00,66000.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2026-02-13,FY2026,J-1012,1,Payroll - February,21300.00,0.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2026-02-13,FY2026,J-1012,2,Superannuation - February,4900.00,0.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2026-02-13,FY2026,J-1012,3,Office administration - February,2150.00,0.00,AUD,ERP-X
+AU01,1000,Cash at Bank,2026-02-13,FY2026,J-1012,4,Payroll and administration settled,0.00,28350.00,AUD,ERP-X
+AU01,5000,Cost of Sales,2026-03-19,FY2026,J-1013,1,Goods received - March,33200.00,0.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2026-03-19,FY2026,J-1013,2,Inward freight - March,2800.00,0.00,AUD,ERP-X
+AU01,2000,Trade Payables,2026-03-19,FY2026,J-1013,3,Supplier invoices payable - March,0.00,36000.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2026-04-24,FY2026,J-1014,1,Sales invoiced on credit - batch 1,57000.00,0.00,AUD,ERP-X
+AU01,1100,Trade Receivables,2026-04-24,FY2026,J-1014,2,Sales invoiced on credit - batch 2,19500.00,0.00,AUD,ERP-X
+AU01,4100,Sales Revenue,2026-04-24,FY2026,J-1014,3,Sales revenue - April,0.00,76500.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2026-05-15,FY2026,J-1015,1,Bank charges - May,1200.00,0.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2026-05-15,FY2026,J-1015,2,Premises costs - May,7450.00,0.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2026-05-15,FY2026,J-1015,3,Professional fees - May,3300.00,0.00,AUD,ERP-X
+AU01,1000,Cash at Bank,2026-05-15,FY2026,J-1015,4,Operating expenses settled,0.00,11950.00,AUD,ERP-X
+AU01,5000,Cost of Sales,2026-06-30,FY2026,J-1042,1,Year end accrual - cost of sales,15000.00,0.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2026-06-30,FY2026,J-1042,2,Year end accrual - operating costs,4200.00,0.00,AUD,ERP-X
+AU01,2000,Trade Payables,2026-06-30,FY2026,J-1042,3,Year end accruals payable,0.00,19200.00,AUD,ERP-X
+AU01,5000,Cost of Sales,2026-06-30,FY2026,J-1042,4,Unposted accrual adjustment,250.00,0.00,AUD,ERP-X
+AU01,6000,Operating Expenses,2026-05-15,FY2026,J-1015,1,Bank charges - May,1200.00,0.00,AUD,ERP-X

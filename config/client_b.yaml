@@ -1,0 +1,24 @@
+client_id: CLIENT_B
+client_name: Client B Holdings Ltd
+engagement_id: FY2026-AUDIT
+period: FY2026
+
+financial_year:
+  start: 2025-07-01
+  end: 2026-06-30
+
+materiality:
+  tolerance: 12000.00
+  currency: AUD
+
+sign_convention:
+  debit_column_positive: true
+  credit_column_positive: true
+
+parsing:
+  encodings: [utf-8, latin-1]
+  delimiters: [",", "\t", "|"]
+  date_formats: ["%Y-%m-%d", "%d/%m/%Y", "%d-%b-%Y"]
+
+mapping:
+  confidence_gate: 0.85

@@ -1,0 +1,31 @@
+# Per-client engagement configuration.
+# One codebase, one configuration file per client. Never fork the code.
+client_id: CLIENT_A
+client_name: Client A Pty Ltd
+engagement_id: FY2026-AUDIT
+period: FY2026
+
+financial_year:
+  start: 2025-07-01
+  end: 2026-06-30
+
+# Materiality tolerance is set by the engagement team, not by engineering.
+# At 1,000.00 the planted defects split either side of the threshold, so a run
+# demonstrates both material and immaterial handling.
+materiality:
+  tolerance: 1000.00
+  currency: AUD
+
+sign_convention:
+  # Debits and credits arrive in separate columns, both positive.
+  debit_column_positive: true
+  credit_column_positive: true
+
+parsing:
+  encodings: [utf-8, latin-1]
+  delimiters: [",", "\t", "|"]
+  date_formats: ["%Y-%m-%d", "%d/%m/%Y", "%d-%b-%Y"]
+
+mapping:
+  # Below this confidence an AI-proposed mapping goes to the review queue.
+  confidence_gate: 0.85

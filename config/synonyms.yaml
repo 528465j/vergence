@@ -1,0 +1,26 @@
+# Tier 2 of the mapping resolver: deterministic lexical synonyms.
+# Shared across all clients. Matching is case-insensitive and ignores
+# spaces, underscores and hyphens.
+#
+# Coverage is deliberately incomplete. Headers absent from this file fall
+# through to Tier 3 (an AI proposal), which is the behaviour the prototype
+# exists to demonstrate.
+
+gl:
+  account_code:   [account code, accountcode, acct code, gl acct, glaccount, nominal code, account no, account number]
+  account_name:   [account name, acct name, gl acct desc, account description, nominal name]
+  posting_date:   [posting date, posting dt, post date, transdate, trans date, transaction date, doc date]
+  journal_id:     [journal id, journal ref, jnl ref, journal no, batch id, voucher no, document no]
+  line_no:        [line no, line number, linenum, line, seq, sequence]
+  description:    [description, narrative, memo, line description, text]
+  debit:          [debit, debit amt, debit amount, amount dr, dr amount, dr]
+  credit:         [credit, credit amt, credit amount, amount cr, cr amount, cr]
+  currency:       [currency, currency code, curr]
+
+tb:
+  account_code:    [account code, accountcode, acct code, gl acct, nominal code, account no]
+  account_name:    [account name, acct name, nominal name, account description]
+  opening_balance: [opening balance, open bal, op bal, balance brought forward, bfwd]
+  period_debits:   [period debits, per dr, movement dr, debits]
+  period_credits:  [period credits, per cr, movement cr, credits]
+  closing_balance: [closing balance, close bal, cl bal, balance carried forward, cfwd]

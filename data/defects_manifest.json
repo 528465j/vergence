@@ -1,0 +1,107 @@
+{
+  "generated_at": "2026-07-28T09:42:17Z",
+  "client_id": "CLIENT_A",
+  "period": "FY2026",
+  "materiality_tolerance": "1000.00",
+  "defects": [
+    {
+      "id": "D1",
+      "description": "A line for account 5000 Cost of Sales, debit 250.00, appended to year-end journal J-1042 with no matching credit. The journal no longer self-balances (C1), and the General Ledger movement on 5000 now exceeds the Trial Balance by the same amount (C2). Both sit below the 1000.00 materiality tolerance and are recorded as immaterial.",
+      "injected_into": "gl",
+      "expected_exceptions": [
+        {
+          "control_id": "C1",
+          "journal_id": "J-1042",
+          "account_code": null,
+          "value": "250.00",
+          "above_materiality": false
+        },
+        {
+          "control_id": "C2",
+          "journal_id": null,
+          "account_code": "5000",
+          "value": "250.00",
+          "above_materiality": false
+        }
+      ]
+    },
+    {
+      "id": "D2",
+      "description": "An exact copy of J-1015 line 1, account 6000 Operating Expenses, debit 1200.00, appended to the General Ledger reusing the same line_no so all eight fields of the duplicate key match. One root cause, three controls. DEDUPE reports the pair. Because the copy is a one-sided debit, journal J-1015 is out of balance by 1200.00 in the file as delivered and C1 reports it: stage 3 records a reversible duplicate decision and returns the population unchanged, so removing a row never silently changes what another control sees. The Trial Balance was derived before the copy existed, so the same amount also appears as a General Ledger to Trial Balance difference on 6000 (C2).",
+      "injected_into": "gl",
+      "expected_exceptions": [
+        {
+          "control_id": "DEDUPE",
+          "journal_id": "J-1015",
+          "account_code": "6000",
+          "value": "1200.00",
+          "above_materiality": true
+        },
+        {
+          "control_id": "C1",
+          "journal_id": "J-1015",
+          "account_code": null,
+          "value": "1200.00",
+          "above_materiality": true
+        },
+        {
+          "control_id": "C2",
+          "journal_id": null,
+          "account_code": "6000",
+          "value": "1200.00",
+          "above_materiality": true
+        }
+      ]
+    },
+    {
+      "id": "D3",
+      "description": "1850.00 added to the Trial Balance closing balance of account 4100 Sales Revenue, leaving period_debits and period_credits unchanged. The Trial Balance no longer agrees with the balance derived from the General Ledger for that account (C2) and no longer sums to zero (C6). The General Ledger is untouched.",
+      "injected_into": "tb",
+      "expected_exceptions": [
+        {
+          "control_id": "C2",
+          "journal_id": null,
+          "account_code": "4100",
+          "value": "1850.00",
+          "above_materiality": true
+        },
+        {
+          "control_id": "C6",
+          "journal_id": null,
+          "account_code": null,
+          "value": "1850.00",
+          "above_materiality": true
+        }
+      ]
+    },
+    {
+      "id": "D4",
+      "description": "The posting date of J-1003 line 1, account 1000 Cash at Bank, debit 40000.00, moved to 2025-06-28, outside 2025-07-01 to 2026-06-30, with the amount unchanged (C4). The recorded value is the amount of the misdated posting. No balance difference arises: C2 compares full-year account totals, so a line in the wrong period is still counted in the account it was posted to.",
+      "injected_into": "gl",
+      "expected_exceptions": [
+        {
+          "control_id": "C4",
+          "journal_id": "J-1003",
+          "account_code": "1000",
+          "value": "40000.00",
+          "above_materiality": true
+        }
+      ]
+    },
+    {
+      "id": "D5",
+      "description": "No injection required. Account 1500 Inventory carries an opening balance of 95000.00 and receives no General Ledger lines at all, so it is present in the Trial Balance and absent from the General Ledger (C3). The recorded value is the account's Trial Balance closing balance, the balance one source carries and the other has no record of. C2 raises nothing on 1500: with no movement in either source, opening plus nil equals closing.",
+      "injected_into": "none",
+      "expected_exceptions": [
+        {
+          "control_id": "C3",
+          "journal_id": null,
+          "account_code": "1500",
+          "value": "95000.00",
+          "above_materiality": true
+        }
+      ]
+    }
+  ],
+  "expected_exception_count": 9
+}

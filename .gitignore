@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.DS_Store
+out/
+*.egg-info/
+.claude/settings.local.json
+.logs/
+\[log-*

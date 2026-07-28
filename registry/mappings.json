@@ -1,0 +1,5 @@
+{
+  "registry_version": 1,
+  "description": "Approved column mappings, keyed by client. Written back to by the human review gate. Empty at first run by design.",
+  "clients": {}
+}
