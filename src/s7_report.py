@@ -1,18 +1,26 @@
-"""Stage 7 — Output, documentation and audit trail. Deterministic. Phase 1.
+"""Stage 7 — Output, documentation and audit trail. Deterministic.
 
-Three artefacts, written under out/:
+Four artefacts, written under out/:
 
   1. reconciliation_statement.md  value in scope, value agreed, and the
      exceptions by control and by value.
   2. exception_register.csv       one row per ExceptionRecord.
   3. run_log.json                 run identifier, timestamp, config and
      registry versions, every source file SHA-256, and every counter.
+  4. review_queue.json            what stage 1 could not settle on its own.
+
+The review queue is written on every run, including runs that need nothing
+decided. A file that is only written when there is work would leave the last
+run's queue on disk looking like this run's.
 
     def write_reports(outcome, out_dir) -> list[Path]
+    def write_review_queue(path, ...) -> Path
     def print_run_summary(outcome) -> None
 
-    class RunOutcome        everything one run produced, assembled by the driver
-    class DatasetOutcome    one source file, and what became of its rows
+    class RunOutcome          everything one run produced, assembled by the driver
+    class DatasetOutcome      one source file, and what became of its rows
+    class DatasetResolution   how stage 1 resolved one file's columns
+    class MappingFigures      that resolution counted by tier
 
 Figures derived from an outcome, all of them read by the two writers above and
 available to anything else that needs them:
@@ -42,6 +50,7 @@ from __future__ import annotations
 
 import csv
 import json
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -55,6 +64,7 @@ from .models import (
     ControlSummary,
     DuplicateDecision,
     ExceptionRecord,
+    MappingProposal,
     SourceFile,
     parse_money,
 )
@@ -64,6 +74,7 @@ ZERO = Decimal("0.00")
 STATEMENT_FILE = "reconciliation_statement.md"
 REGISTER_FILE = "exception_register.csv"
 RUN_LOG_FILE = "run_log.json"
+REVIEW_QUEUE_FILE = "review_queue.json"
 
 REGISTER_COLUMNS = (
     "run_id",
@@ -89,15 +100,99 @@ CONTROL_ORDER = ("C1", "C2", "C3", "C4", "C5", "C6", "DEDUPE")
 
 
 @dataclass(frozen=True)
+class MappingFigures:
+    """One file's columns, counted by the tier that settled them.
+
+    The tiers count every column stage 1 formed a view about, resolved or
+    queued, so they add to the columns the file carries. review counts what
+    is waiting on a person, and overlaps the tier it was proposed at.
+    """
+
+    tier1: int
+    tier2: int
+    tier3: int
+    review: int
+
+    @property
+    def columns(self) -> int:
+        return self.tier1 + self.tier2 + self.tier3
+
+    def line(self) -> str:
+        return (
+            f"tier1={self.tier1} tier2={self.tier2} "
+            f"tier3={self.tier3} review={self.review}"
+        )
+
+    def as_dict(self) -> dict[str, int]:
+        return {
+            "tier1": self.tier1,
+            "tier2": self.tier2,
+            "tier3": self.tier3,
+            "review": self.review,
+        }
+
+
+@dataclass(frozen=True)
+class DatasetResolution:
+    """How stage 1 resolved one file's columns, before a row was validated.
+
+    Held whole rather than reduced to the mapping, because the review queue and
+    the run log both describe how each column was arrived at, and a mapping on
+    its own no longer says.
+
+    missing_fields names the canonical fields nothing resolved to. It is the
+    test of whether the mapping is usable: a file missing a field its record
+    requires cannot produce a single valid row, and the run stops rather than
+    quarantining every row of a file that was only ever half read.
+    """
+
+    dataset: str
+    source: SourceFile
+    mapping: Mapping[str, str]
+    headers: Sequence[str]
+    resolved: Sequence[MappingProposal]
+    review: Sequence[MappingProposal]
+    missing_fields: Sequence[str]
+
+    @property
+    def complete(self) -> bool:
+        return not self.missing_fields
+
+    @property
+    def figures(self) -> MappingFigures:
+        tiers = Counter(
+            proposal.source_tier
+            for proposal in list(self.resolved) + list(self.review)
+        )
+        return MappingFigures(
+            tier1=tiers[1], tier2=tiers[2], tier3=tiers[3], review=len(self.review)
+        )
+
+
+@dataclass(frozen=True)
 class DatasetOutcome:
     """One source file, and what became of its rows."""
 
-    dataset_key: str
-    source: SourceFile
-    mapping: Mapping[str, str]
+    resolution: DatasetResolution
     rows_received: int
     rows_accepted: int
     quarantined: Sequence[Mapping[str, Any]]
+
+    @property
+    def dataset(self) -> str:
+        return self.resolution.dataset
+
+    @property
+    def source(self) -> SourceFile:
+        return self.resolution.source
+
+    @property
+    def mapping(self) -> Mapping[str, str]:
+        return self.resolution.mapping
+
+    @property
+    def figures(self) -> MappingFigures:
+        return self.resolution.figures
 
     @property
     def rows_quarantined(self) -> int:
@@ -125,6 +220,11 @@ class RunOutcome:
     registry_sha256: str
     registry_version: Any
     mapping_resolver: str
+    # The class that was actually asked, and how many times it was asked. Both
+    # are recorded rather than inferred from the configuration, so a stub can
+    # never be reported as a live call and a model that was attached but never
+    # needed reports the zero calls it made.
+    model_name: str | None
     model_calls: int
     datasets: Sequence[DatasetOutcome]
     gl_lines: Sequence[CanonicalGLLine]
@@ -161,6 +261,9 @@ def counters(outcome: RunOutcome) -> dict[str, int]:
     return {
         "source_files": len(outcome.datasets),
         "columns_mapped": sum(len(dataset.mapping) for dataset in outcome.datasets),
+        "columns_in_review": sum(
+            dataset.figures.review for dataset in outcome.datasets
+        ),
         "model_calls": outcome.model_calls,
         "rows_received": rows_received,
         "rows_accepted": rows_accepted,
@@ -231,7 +334,7 @@ def agreement(outcome: RunOutcome) -> tuple[Decimal, Decimal, list[str]]:
 
 
 def write_reports(outcome: RunOutcome, out_dir: Path) -> list[Path]:
-    """Write the three artefacts and return their paths."""
+    """Write the three reporting artefacts and return their paths."""
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     return [
@@ -239,6 +342,73 @@ def write_reports(outcome: RunOutcome, out_dir: Path) -> list[Path]:
         _write_register(outcome, out_dir / REGISTER_FILE),
         _write_run_log(outcome, out_dir / RUN_LOG_FILE),
     ]
+
+
+def _proposal_record(proposal: MappingProposal) -> dict[str, Any]:
+    """One proposal as it is written to the queue, and read back by the gate."""
+    return {
+        "source_column": proposal.source_column,
+        "canonical_field": proposal.canonical_field,
+        "confidence": proposal.confidence,
+        "source_tier": proposal.source_tier,
+        "rationale": proposal.rationale,
+    }
+
+
+def write_review_queue(
+    out_dir: Path,
+    *,
+    run_id: str,
+    provider: str,
+    registry_version: Any,
+    gate: float,
+    model_name: str | None,
+    resolutions: Sequence[DatasetResolution],
+) -> Path:
+    """Write what stage 1 could not settle, and what it settled alongside it.
+
+    Both halves are recorded. The queue on its own would let a reviewer approve
+    five columns and leave the other seven with nowhere to be written down,
+    and the approval gate needs the complete settled mapping to record a
+    provider a later run can resolve entirely at tier 1.
+
+    Written on every run. An empty queue is a statement that nothing is
+    waiting, which is not the same as no statement at all.
+    """
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / REVIEW_QUEUE_FILE
+    payload = {
+        "run_id": run_id,
+        "provider": provider,
+        "registry_version": registry_version,
+        "confidence_gate": gate,
+        "model": model_name,
+        "review_items": sum(len(r.review) for r in resolutions),
+        "datasets": {
+            resolution.dataset: {
+                "source": {
+                    "filename": resolution.source.filename,
+                    "sha256": resolution.source.sha256,
+                },
+                "headers": list(resolution.headers),
+                "complete": resolution.complete,
+                "missing_fields": list(resolution.missing_fields),
+                "figures": resolution.figures.as_dict(),
+                "resolved": [
+                    _proposal_record(proposal) for proposal in resolution.resolved
+                ],
+                "review": [
+                    _proposal_record(proposal) for proposal in resolution.review
+                ],
+            }
+            for resolution in resolutions
+        },
+    }
+    with path.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2)
+        handle.write("\n")
+    return path
 
 
 def _write_statement(outcome: RunOutcome, path: Path) -> Path:
@@ -425,11 +595,20 @@ def _write_run_log(outcome: RunOutcome, path: Path) -> Path:
         },
         "mapping": {
             "resolver": outcome.mapping_resolver,
+            # The registry this run resolved against, restated here so the
+            # mapping section says what it read as well as what it did. The
+            # registry section above carries the same file's path and hash.
+            "registry_version": outcome.registry_version,
+            "model": outcome.model_name,
             "model_calls": outcome.model_calls,
+            "by_dataset": {
+                dataset.dataset: dataset.figures.as_dict()
+                for dataset in outcome.datasets
+            },
         },
         "sources": [
             {
-                "dataset": dataset.dataset_key,
+                "dataset": dataset.dataset,
                 "path": _relative(dataset.source.path, outcome.repo_root),
                 "filename": dataset.source.filename,
                 "sha256": dataset.source.sha256,
@@ -501,6 +680,31 @@ def _relative(path: Path, root: Path) -> str:
 # ---------------------------------------------------------------------------
 
 
+def mapping_report(
+    resolutions: Sequence[Any],
+    *,
+    model_name: str | None,
+    model_calls: int,
+) -> list[str]:
+    """The mapping block: one line per file, then the model that was asked.
+
+    Rendered here for both the run summary and the review notice, so a run
+    that stopped for a decision reports its mapping in exactly the figures a
+    run that finished would.
+
+    Naming the class is deliberate. The line states what actually ran, so a
+    stub can never be presented as a live call, and a run with a model
+    attached that needed nothing proposed reports the zero calls it made.
+    """
+    lines = [
+        f"{resolution.dataset.upper():<4}{resolution.figures.line()}"
+        for resolution in resolutions
+    ]
+    called = model_name or "no model attached"
+    lines.append(f"{'':<36}| model calls: {model_calls} ({called})")
+    return lines
+
+
 def print_run_summary(outcome: RunOutcome) -> None:
     """Print the run summary. Every figure is read off the outcome."""
     figures = counters(outcome)
@@ -541,7 +745,13 @@ def print_run_summary(outcome: RunOutcome) -> None:
         ),
         (
             "Mapping",
-            f"{outcome.mapping_resolver:<36}| model calls: {figures['model_calls']}",
+            "\n".join(
+                mapping_report(
+                    outcome.datasets,
+                    model_name=outcome.model_name,
+                    model_calls=outcome.model_calls,
+                )
+            ),
         ),
         ("Controls run", controls),
         (
@@ -553,4 +763,7 @@ def print_run_summary(outcome: RunOutcome) -> None:
         ("By control", found or "none"),
         ("Duration", f"{outcome.duration_seconds:.3f} s"),
     ):
-        print(f"  {label:<15}: {text}")
+        first, *rest = str(text).split("\n")
+        print(f"  {label:<15}: {first}")
+        for line in rest:
+            print(f"  {'':<15}  {line}")

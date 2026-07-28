@@ -28,7 +28,9 @@ MappingProposal.canonical_field is a Literal over the canonical enumeration, so
 a proposal naming a field that does not exist cannot be constructed at all.
 The enumeration is enforced by the type system rather than requested in a
 prompt, which is the difference between a constraint and an instruction the
-proposer is free to ignore.
+proposer is free to ignore. Stage 1 narrows that Literal to the fields of the
+dataset in hand, so the same guarantee also stops a Trial Balance column being
+proposed a General Ledger field.
 
 Validators reject; they do not coerce. Each parse failure raises against a
 named rule identifier and stage 2 quarantines the row whole. Nothing here is
@@ -108,9 +110,11 @@ DuplicateKind = Literal["EXACT", "SUSPECTED"]
 # no third state: a control that could not be reached did not run.
 ControlStatus = Literal["RUN", "SKIPPED"]
 
-# Where a mapping came from. STATIC is the Phase 1 table in stage 1: a mapping
-# resolved from it must say so rather than claim a tier it did not come from.
-MappingTier = Literal["REGISTRY", "SYNONYM", "MODEL", "STATIC"]
+# Which tier of the stage 1 resolver settled a mapping: 1 the registry of
+# approved mappings, 2 the synonym list and fuzzy matching, 3 a model proposal.
+# A mapping must say which tier reached it rather than claim one it did not
+# come from, which is why the tier is carried on the proposal and not inferred.
+MappingTier = Literal[1, 2, 3]
 
 CENTS = Decimal("0.01")
 
@@ -368,13 +372,20 @@ class MappingProposal(_Adjudicable):
     canonical_field is the enumeration itself, not a string that resembles it.
     A proposal naming a field that does not exist cannot be constructed, so it
     can never reach the review queue, be approved by mistake, or be written to
-    the registry.
+    the registry. Stage 1 subclasses this record per dataset, narrowing the
+    enumeration to the fields that dataset defines.
+
+    canonical_field and source_tier are None together, and only together: no
+    tier reached the column and nothing was proposed for it, which is what a
+    run with no model attached produces for every column tiers 1 and 2 could
+    not resolve. None is the stated absence of a proposal rather than a field
+    name or a tier, and like every other field here it is stated, not defaulted.
     """
 
     source_column: NonEmptyText
-    canonical_field: CanonicalField
+    canonical_field: CanonicalField | None
     confidence: Annotated[float, Field(ge=0.0, le=1.0)]
-    source_tier: MappingTier
+    source_tier: MappingTier | None
     rationale: NonEmptyText
 
 

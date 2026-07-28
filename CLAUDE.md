@@ -26,6 +26,7 @@ one.
 | `src/s4_reconcile.py` | 4 — The reconciliation engine | Deterministic |
 | `src/s7_report.py` | 7 — Output, documentation and audit trail | Deterministic |
 | `src/run.py` | Pipeline driver | Deterministic |
+| `src/approve.py` | The human review gate for stage 1 | Deterministic |
 
 Stage 5 (PDF journal extraction) and Stage 6 (exception narrative) are
 deliberately out of scope. Do not add them.
@@ -78,8 +79,14 @@ anything:
 ```bash
 source .venv/bin/activate
 python -m src.run --client CLIENT_A
+python -m src.approve --client CLIENT_A --approve-all
 python -m pytest -q
 ```
+
+A run exits 0 for a completed reconciliation, 1 for a pipeline that could not
+run, and 2 when stage 1 left columns for a person to decide. Approval is its
+own command so the moment someone takes responsibility for a mapping appears
+in shell history as its own act.
 
 ## Writing rules for this repository
 
