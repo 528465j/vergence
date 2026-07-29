@@ -1,0 +1,34 @@
+The test suite
+==============
+
+Captured output. One test per control against a fixture built to defeat it,
+the control total in both directions, the golden dataset against the planted
+defects manifest, and the resolver run with no model attached.
+
+$ python -m pytest -v --color=no
+============================= test session starts ==============================
+platform linux -- Python 3.12.1, pytest-9.1.1, pluggy-1.6.0 -- /workspaces/vergence/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspaces/vergence
+collecting ... collected 16 items
+
+tests/test_controls.py::test_c1_fires_on_an_unbalanced_journal PASSED    [  6%]
+tests/test_controls.py::test_c1_raises_nothing_on_a_balanced_journal PASSED [ 12%]
+tests/test_controls.py::test_c2_fires_on_a_ledger_to_balance_difference PASSED [ 18%]
+tests/test_controls.py::test_c2_raises_nothing_on_an_account_with_no_movement PASSED [ 25%]
+tests/test_controls.py::test_c3_fires_on_an_account_present_in_one_source_only PASSED [ 31%]
+tests/test_controls.py::test_c4_fires_on_a_posting_dated_outside_the_financial_year PASSED [ 37%]
+tests/test_controls.py::test_c5_fires_when_a_prior_closing_disagrees_with_the_opening PASSED [ 43%]
+tests/test_controls.py::test_c5_reports_skipped_when_no_prior_period_is_supplied PASSED [ 50%]
+tests/test_controls.py::test_c6_raises_one_exception_when_both_limbs_fail PASSED [ 56%]
+tests/test_controls.py::test_dedupe_fires_on_an_exact_duplicate PASSED   [ 62%]
+tests/test_controls.py::test_find_duplicates_returns_the_population_unchanged PASSED [ 68%]
+tests/test_controls.py::test_the_control_total_holds_on_the_real_dataset PASSED [ 75%]
+tests/test_controls.py::test_a_broken_row_count_raises_control_total_error PASSED [ 81%]
+tests/test_controls.py::test_the_real_dataset_quarantines_no_rows PASSED [ 87%]
+tests/test_controls.py::test_a_full_run_produces_the_exceptions_the_manifest_expects PASSED [ 93%]
+tests/test_controls.py::test_resolve_columns_completes_with_no_model PASSED [100%]
+
+============================== 16 passed in 0.39s ==============================
+$ echo $?
+0

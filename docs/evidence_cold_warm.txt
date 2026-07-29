@@ -1,0 +1,135 @@
+Cold and warm: what resolving a column at a different tier changes
+==================================================================
+
+Every line below is captured output. The commands appear exactly as they were
+run and in the order they were run. registry/mappings.json was reset with
+git checkout before the first run and again after the last, so the repository
+is left holding the empty registry it ships with.
+
+
+1. COLD - the registry is empty, so nothing is known about this provider
+------------------------------------------------------------------------
+$ git checkout registry/mappings.json
+Updated 0 paths from the index
+
+$ cat registry/mappings.json
+{
+  "registry_version": 1,
+  "description": "Approved column mappings, keyed by client. Written back to by the human review gate. Empty at first run by design.",
+  "clients": {}
+}
+
+$ python -m src.run --client CLIENT_A
+REVIEW REQUIRED  6 column(s) need a decision before CLIENT_A can be reconciled.
+  Mapping        : GL  tier1=0 tier2=7 tier3=5 review=5
+                   TB  tier1=0 tier2=6 tier3=1 review=1
+                                                       | model calls: 2 (StubMappingLLM)
+  GL  5 awaiting: Co Code, Per, Ln, Ccy, Src
+      Co Code       -> entity (0.88, tier 3)
+      Per           -> period (0.91, tier 3)
+      Ln            -> line_no (0.94, tier 3)
+      Ccy           -> currency (0.96, tier 3)
+      Src           -> source_system (0.89, tier 3)
+      unresolved canonical fields: entity, period, line_no, currency, source_system
+  TB  1 awaiting: Co Code
+      Co Code       -> entity (0.88, tier 3)
+      unresolved canonical fields: entity
+  Queue written to out/review_queue.json
+  To review and approve:
+      python -m src.approve --client CLIENT_A
+      python -m src.approve --client CLIENT_A --approve-all
+$ echo $?
+2
+
+
+2. THE APPROVAL - a person takes responsibility for the six columns
+--------------------------------------------------------------------
+$ python -m src.approve --client CLIENT_A --approve-all
+APPROVED  CLIENT_A
+  GL   12 columns written  tier1=0 tier2=7 tier3=5   approved_by: deterministic 7 · human 5
+  TB    7 columns written  tier1=0 tier2=6 tier3=1   approved_by: deterministic 6 · human 1
+  Registry: registry/mappings.json  (19 columns across gl, tb)
+  The next run of CLIENT_A resolves these at tier 1, with no model call.
+$ echo $?
+0
+
+
+3. WARM - the same two files, the same command, nothing asked of the model
+---------------------------------------------------------------------------
+$ python -m src.run --client CLIENT_A
+RUN RUN-20260729T001928Z-b3cdfc  |  provider=CLIENT_A  engagement=FY2026-AUDIT  period=FY2026
+  Sources        : 2 files, SHA-256 recorded
+  Rows           : received 59 | accepted 59 | quarantined 0   [control total OK]
+  Mapping        : GL  tier1=12 tier2=0 tier3=0 review=0
+                   TB  tier1=7 tier2=0 tier3=0 review=0
+                                                       | model calls: 0 (StubMappingLLM)
+  Controls run   : 7  (C5 SKIPPED - no prior period loaded)
+  Exceptions     : 9  |  above materiality 7 | below 2
+  By control     : C1 2 · C2 3 · C3 1 · C4 1 · C6 1 · DEDUPE 1
+  Duration       : 0.016 s
+  Artefacts      : out/reconciliation_statement.md, out/exception_register.csv, out/run_log.json, out/review_queue.json
+$ echo $?
+0
+
+$ cp out/exception_register.csv out/registry_resolved.csv
+
+
+4. THE REGISTER DOES NOT DEPEND ON WHICH TIER RESOLVED THE COLUMNS
+-------------------------------------------------------------------
+The run above resolved all twelve General Ledger columns from the registry.
+Below, the provider is known to the registry but four of its columns are not,
+so the model tier resolves those four and the run reaches the controls. The
+two registers are then compared.
+$ git checkout registry/mappings.json
+Updated 1 path from the index
+
+$ python -m src.run --client CLIENT_A > /dev/null    # writes the review queue
+
+$ python -m src.approve --client CLIENT_A --approve "Co Code"
+APPROVED  CLIENT_A
+  GL    8 columns written  tier1=0 tier2=7 tier3=1   approved_by: deterministic 7 · human 1
+  TB    7 columns written  tier1=0 tier2=6 tier3=1   approved_by: deterministic 6 · human 1
+  Registry: registry/mappings.json  (15 columns across gl, tb)
+  The next run of CLIENT_A resolves these at tier 1, with no model call.
+$ echo $?
+0
+
+$ python -m src.run --client CLIENT_A
+RUN RUN-20260729T001929Z-ee915f  |  provider=CLIENT_A  engagement=FY2026-AUDIT  period=FY2026
+  Sources        : 2 files, SHA-256 recorded
+  Rows           : received 59 | accepted 59 | quarantined 0   [control total OK]
+  Mapping        : GL  tier1=8 tier2=0 tier3=4 review=0
+                   TB  tier1=7 tier2=0 tier3=0 review=0
+                                                       | model calls: 1 (StubMappingLLM)
+  Controls run   : 7  (C5 SKIPPED - no prior period loaded)
+  Exceptions     : 9  |  above materiality 7 | below 2
+  By control     : C1 2 · C2 3 · C3 1 · C4 1 · C6 1 · DEDUPE 1
+  Duration       : 0.019 s
+  Artefacts      : out/reconciliation_statement.md, out/exception_register.csv, out/run_log.json, out/review_queue.json
+$ echo $?
+0
+
+$ cp out/exception_register.csv out/model_resolved.csv
+
+$ sed -E 's/RUN-[0-9TZ]+-[0-9a-f]+/RUN-ID/' out/registry_resolved.csv > out/a.csv
+$ sed -E 's/RUN-[0-9TZ]+-[0-9a-f]+/RUN-ID/' out/model_resolved.csv > out/b.csv
+
+$ diff out/a.csv out/b.csv && echo IDENTICAL
+IDENTICAL
+
+$ wc -l out/a.csv
+10 out/a.csv
+
+
+5. RESET - the repository is left as it ships
+----------------------------------------------
+$ git checkout registry/mappings.json
+Updated 1 path from the index
+
+$ cat registry/mappings.json
+{
+  "registry_version": 1,
+  "description": "Approved column mappings, keyed by client. Written back to by the human review gate. Empty at first run by design.",
+  "clients": {}
+}
+

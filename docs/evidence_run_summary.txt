@@ -1,0 +1,50 @@
+The console summary of a warm run
+=================================
+
+Captured output of the run in section 3 of evidence_cold_warm.txt: the two
+source files read, every column resolved from the registry, the seven
+registered controls, and the exceptions they raised.
+
+$ python -m src.run --client CLIENT_A
+RUN RUN-20260729T001928Z-b3cdfc  |  provider=CLIENT_A  engagement=FY2026-AUDIT  period=FY2026
+  Sources        : 2 files, SHA-256 recorded
+  Rows           : received 59 | accepted 59 | quarantined 0   [control total OK]
+  Mapping        : GL  tier1=12 tier2=0 tier3=0 review=0
+                   TB  tier1=7 tier2=0 tier3=0 review=0
+                                                       | model calls: 0 (StubMappingLLM)
+  Controls run   : 7  (C5 SKIPPED - no prior period loaded)
+  Exceptions     : 9  |  above materiality 7 | below 2
+  By control     : C1 2 · C2 3 · C3 1 · C4 1 · C6 1 · DEDUPE 1
+  Duration       : 0.016 s
+  Artefacts      : out/reconciliation_statement.md, out/exception_register.csv, out/run_log.json, out/review_queue.json
+$ echo $?
+0
+
+
+The register that run wrote
+---------------------------
+Six of the eleven columns, for width. The full register, evidence line and
+all, is the file being read.
+
+$ cut -d, -f2,3,5,6,7,9 out/exception_register.csv
+control_id,severity,account_code,journal_id,value,above_materiality
+C1,HIGH,,J-1015,1200.00,true
+C1,HIGH,,J-1042,250.00,false
+C2,HIGH,4100,,1850.00,true
+C2,MEDIUM,5000,,250.00,false
+C2,HIGH,6000,,1200.00,true
+C3,HIGH,1500,,95000.00,true
+C4,HIGH,1000,J-1003,40000.00,true
+C6,HIGH,,,1850.00,true
+DEDUPE,HIGH,6000,J-1015,1200.00,true
+
+
+The planted defects the run was measured against
+------------------------------------------------
+$ python -c "..."   # reading data/defects_manifest.json
+5 planted defects, 9 exceptions expected
+  D1  2 exception(s)  C1, C2
+  D2  3 exception(s)  DEDUPE, C1, C2
+  D3  2 exception(s)  C2, C6
+  D4  1 exception(s)  C4
+  D5  1 exception(s)  C3
